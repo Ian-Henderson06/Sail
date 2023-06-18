@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 using UnityEngine;
 
+using Sail.Data;
+
 namespace Sail
 {
     /// <summary>
@@ -39,17 +41,17 @@ namespace Sail
         public NetworkObjectDetails FindObject(int itemID)
         {
             NetworkObjectDetails retDetails = null;
-            foreach(NetworkObjectDetails details in ObjectDatabase)
+            foreach (NetworkObjectDetails details in ObjectDatabase)
             {
-                if(details.ItemID == itemID)
+                if (details.ItemID == itemID)
                 {
                     retDetails = details;
                     break;
-                } 
+                }
             }
 
             return retDetails;
         }
-     
+
     }
 }

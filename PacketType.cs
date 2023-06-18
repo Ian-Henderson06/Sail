@@ -6,12 +6,12 @@ using UnityEngine;
 namespace Sail
 {
     /// <summary>
-    /// All packets used in the game.
+    /// All internal packets used in Sail.
     /// Server or Client denotes the origin of the packet, not the destination.
     /// </summary>
-    public class PacketType
+    sealed internal class PacketType
     {
-        public enum ServerPacket
+        public enum SailServerPacket
         {
             Sync = 1,
             SpawnPlayer,
@@ -30,7 +30,7 @@ namespace Sail
             UpdateFlags,
         }
 
-        public enum ClientPacket
+        public enum SailClientPacket
         {
             PlayerInformation = 1,
             RequestAuthorityObject,

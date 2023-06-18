@@ -1,4 +1,4 @@
-sing System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -50,7 +50,7 @@ namespace Sail
         {
             Logger.Log("Attempting capture of RPC methods...");
             List<Type> types = GetAllClassesThatImplement<NetworkObject>();
-        
+
 
             foreach (Type classType in types)
             {
@@ -217,44 +217,44 @@ namespace Sail
             for (int i = 0; i < parameterInfos.Length; i++)
             {
                 ParameterInfo info = parameterInfos[i];
-               
+
                 if (info.ParameterType == typeof(byte))
                     parameters[i] = message.GetByte();
-                else if(info.ParameterType == typeof(short))
+                else if (info.ParameterType == typeof(short))
                     parameters[i] = message.GetShort();
-                else if(info.ParameterType == typeof(ushort))
+                else if (info.ParameterType == typeof(ushort))
                     parameters[i] = message.GetUShort();
-                else if(info.ParameterType == typeof(int))
+                else if (info.ParameterType == typeof(int))
                     parameters[i] = message.GetInt();
-                else if(info.ParameterType == typeof(uint))
+                else if (info.ParameterType == typeof(uint))
                     parameters[i] = message.GetUInt();
-                else if(info.ParameterType == typeof(long))
+                else if (info.ParameterType == typeof(long))
                     parameters[i] = message.GetLong();
-                else if(info.ParameterType == typeof(ulong))
+                else if (info.ParameterType == typeof(ulong))
                     parameters[i] = message.GetULong();
-                else if(info.ParameterType == typeof(float))
+                else if (info.ParameterType == typeof(float))
                     parameters[i] = message.GetFloat();
-                else if(info.ParameterType == typeof(double))
+                else if (info.ParameterType == typeof(double))
                     parameters[i] = message.GetDouble();
-                else if(info.ParameterType == typeof(bool))
+                else if (info.ParameterType == typeof(bool))
                     parameters[i] = message.GetBool();
-                else if(info.ParameterType == typeof(string))
+                else if (info.ParameterType == typeof(string))
                     parameters[i] = message.GetString();
-                else if(info.ParameterType == typeof(Vector3))
+                else if (info.ParameterType == typeof(Vector3))
                     parameters[i] = message.GetVector3();
-                else if(info.ParameterType == typeof(Vector2))
+                else if (info.ParameterType == typeof(Vector2))
                     parameters[i] = message.GetVector2();
-                else if(info.ParameterType == typeof(Quaternion))
+                else if (info.ParameterType == typeof(Quaternion))
                     parameters[i] = message.GetQuaternion();
-                else if(info.ParameterType == typeof(double[]))
+                else if (info.ParameterType == typeof(double[]))
                     parameters[i] = message.GetDoubles();
-                else if(info.ParameterType == typeof(float[]))
+                else if (info.ParameterType == typeof(float[]))
                     parameters[i] = message.GetFloats();
-                else if(info.ParameterType == typeof(bool[]))
+                else if (info.ParameterType == typeof(bool[]))
                     parameters[i] = message.GetBools();
-                else if(info.ParameterType == typeof(string[]))
+                else if (info.ParameterType == typeof(string[]))
                     parameters[i] = message.GetStrings();
-                else if(info.ParameterType == typeof(byte[]))
+                else if (info.ParameterType == typeof(byte[]))
                     parameters[i] = message.GetBytes();
                 else
                     throw new System.Exception("DeSerialization for RPC is impossible - Incompatible parameter type: " + info.ParameterType.GetType());

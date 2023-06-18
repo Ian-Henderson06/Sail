@@ -3,28 +3,30 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+using Sail.Data;
+
 using Riptide;
 using Riptide.Utils;
 
 
-using Logger = INet.Util.Logger;
+using Logger = Sail.Util.Logger;
 
-namespace INet
+namespace Sail
 {
     /// <summary>
     /// Shared across client and server.
     /// Gateway to the networking system and allows access to players as well as the main network object.
     /// </summary>
     [RequireComponent(typeof(NetworkCore))]
-    public class NetworkManager : MonoBehaviour
+    public class Manager : MonoBehaviour
     {
         //Properties
         public Peer Network { get; private set; }
-        public NetworkCore Core { get {return _core; } }
+        public NetworkCore Core { get { return _core; } }
         public Dictionary<ushort, NetworkPlayer> Players { get; private set; }
         public Dictionary<int, NetworkObject> NetworkedObjects { get; private set; }
         public TimeManager TimeManager { get { return _timeManager; } }
-        public Measure Measure { get{ return _measure; } }
+        public Measure Measure { get { return _measure; } }
 
         //Events
         public event Action OnTick;
@@ -41,8 +43,8 @@ namespace INet
         private float _tickRate;
 
         //Singleton
-        private static NetworkManager _instance;
-        public static NetworkManager Instance
+        private static Manager _instance;
+        public static Manager Instance
         {
             get => _instance;
             private set
@@ -51,7 +53,7 @@ namespace INet
                     _instance = value;
                 else if (_instance != value)
                 {
-                    Logger.Log($"{nameof(NetworkManager)} instance already exists, destroying object!");
+                    Logger.Log($"{nameof(Manager)} instance already exists, destroying object!");
                     Destroy(value);
                 }
             }
@@ -59,10 +61,10 @@ namespace INet
 
         private void Awake()
         {
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             RiptideLogger.Initialize(Debug.Log, Debug.Log, Debug.LogWarning, Debug.LogError, true);
 #else
-                    RiptideLogger.Initialize(Debug.Log, true);
+            RiptideLogger.Initialize(Debug.Log, true);
 #endif
 
             DontDestroyOnLoad(this);
@@ -76,21 +78,23 @@ namespace INet
             _timeManager = new TimeManager();
             _timeManager.SetupTimeManager(_tickRate);
             _timeManager.OnTick += Tick; //Bind local OnTick method to the time managers OnTick method.
-            
+
 
             _measure = new Measure();
-            OnPostTick += () => {
+            OnPostTick += () =>
+            {
                 if (_measurePackets)
                 {
                     _measure.PrintMeasure();
                 }
                 _measure.ClearMeasure();
             };
-           
+
 
             Logger.Log($"Initialising INet with a tick rate of {_tickRate}ms estimated {_ticksPerSecond} ticks per second.");
 
-            if(_core == null) { 
+            if (_core == null)
+            {
                 _core = gameObject.GetComponent<NetworkCore>();
                 _core.InitialiseCore();
             }

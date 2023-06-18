@@ -3,7 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+using Sail.Core;
 using Sail.Data;
+using Sail.Core.Server;
 
 using Riptide;
 using Riptide.Utils;
@@ -17,13 +19,15 @@ namespace Sail
     /// Shared across client and server.
     /// Gateway to the networking system and allows access to players as well as the main network object.
     /// </summary>
-    [RequireComponent(typeof(NetworkCore))]
+    [RequireComponent(typeof(INetworkCore))]
     public class Manager : MonoBehaviour
     {
         //Properties
         public Peer Network { get; private set; }
-        public NetworkCore Core { get { return _core; } }
-        public Dictionary<ushort, NetworkPlayer> Players { get; private set; }
+        public INetworkCore Core { get { return _core; } }
+        public ServerCore ServerCore { get { return _serverCore; } }
+        public ClientCore ClientCore { get { return _clientCore; } }
+        public Dictionary<ushort, SailPlayer> Players { get; private set; }
         public Dictionary<int, NetworkObject> NetworkedObjects { get; private set; }
         public TimeManager TimeManager { get { return _timeManager; } }
         public Measure Measure { get { return _measure; } }
@@ -38,7 +42,10 @@ namespace Sail
 
         //Private fields
         private TimeManager _timeManager;
-        private NetworkCore _core;
+        private INetworkCore _core;
+        private ServerCore _serverCore;
+        private ClientCore _clientCore;
+
         private Measure _measure;
         private float _tickRate;
 
@@ -70,7 +77,7 @@ namespace Sail
             DontDestroyOnLoad(this);
             Instance = this;
 
-            Players = new Dictionary<ushort, NetworkPlayer>();
+            Players = new Dictionary<ushort, SailPlayer>();
             NetworkedObjects = new Dictionary<int, NetworkObject>();
 
             _tickRate = 1 / _ticksPerSecond;
@@ -95,7 +102,7 @@ namespace Sail
 
             if (_core == null)
             {
-                _core = gameObject.GetComponent<NetworkCore>();
+                _core = gameObject.GetComponent<INetworkCore>();
                 _core.InitialiseCore();
             }
 
@@ -125,7 +132,7 @@ namespace Sail
         /// </summary>
         /// <param name="playerID"></param>
         /// <param name="player"></param>
-        public void AddPlayer(NetworkPlayer player)
+        public void AddPlayer(SailPlayer player)
         {
             if (Players.TryGetValue(player.PlayerID, out _))
             {
@@ -142,7 +149,7 @@ namespace Sail
         /// </summary>
         /// <param name="playerID"></param>
         /// <param name="player"></param>
-        public void RemovePlayer(NetworkPlayer player)
+        public void RemovePlayer(SailPlayer player)
         {
             if (!Players.TryGetValue(player.PlayerID, out _))
             {
@@ -182,6 +189,19 @@ namespace Sail
             }
 
             NetworkedObjects.Remove(nwo.NetworkID);
+        }
+
+        /// <summary>
+        /// Externally assign an initialised core as either a server or client core.
+        /// </summary>
+        /// <param name="IsServer"></param>
+        /// <param name="core"></param>
+        public void AssignCore(bool IsServer, INetworkCore core)
+        {
+            if (IsServer)
+                _serverCore = (ServerCore)core;
+            else
+                _clientCore = (ClientCore)core;
         }
     }
 }

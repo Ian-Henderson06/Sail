@@ -11,7 +11,7 @@ namespace Sail.Data
     /// Should be overwritten for client or server implementation.
     /// </summary>
     [RequireComponent(typeof(NetworkObject))]
-    public class NetworkPlayer : MonoBehaviour
+    public class SailPlayer : MonoBehaviour
     {
         //Public properties
         public string Username { get { return _username; } }

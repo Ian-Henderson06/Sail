@@ -5,11 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Riptide;
+using Sail.Data;
 using UnityEngine;
 
-using Logger = INet.Util.Logger;
+using Logger = Sail.Util.Logger;
 
-namespace INet
+namespace Sail.Core.Server
 {
     public static class ClientSend
     {
@@ -19,9 +20,9 @@ namespace INet
         /// <param name="username"></param>
         public static void SendPlayerInformation(string username)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, (ushort)PacketType.ClientPacket.PlayerInformation);
+            Message message = Message.Create(MessageSendMode.Reliable, (ushort)PacketType.SailClientPacket.PlayerInformation);
             message.Add(username);
-            NetworkManager.Instance.Core.Client.Send(message);
+            Manager.Instance.ClientCore.Send(message);
         }
 
         /// <summary>
@@ -31,10 +32,10 @@ namespace INet
         /// <param name="authLevel"></param>
         public static void RequestAuthority(NetworkObject obj, ClientAuthorityType authLevel)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, (ushort)PacketType.ClientPacket.RequestAuthorityObject);
+            Message message = Message.Create(MessageSendMode.Reliable, (ushort)PacketType.SailClientPacket.RequestAuthorityObject);
             message.Add(obj.NetworkID);
             message.Add((ushort)authLevel);
-            NetworkManager.Instance.Core.Client.Send(message);
+            Manager.Instance.ClientCore.Send(message);
         }
 
         /// <summary>
@@ -50,11 +51,11 @@ namespace INet
             }
 
             MessageSendMode sendMode = reliable == false ? MessageSendMode.Unreliable : MessageSendMode.Reliable;
-            Message message = Message.Create(sendMode, (ushort)PacketType.ClientPacket.RequestUpdateObject);
+            Message message = Message.Create(sendMode, (ushort)PacketType.SailClientPacket.RequestUpdateObject);
             message.Add(obj.NetworkID);
             message.Add(position);
             message.Add(rotation);
-            NetworkManager.Instance.Core.Client.Send(message);
+            Manager.Instance.ClientCore.Send(message);
         }
 
         /// <summary>
@@ -63,7 +64,7 @@ namespace INet
         /// <param name="nwo"></param>
         public static void RequestEquip(NetworkObject nwo, NetworkObject hand, bool shouldEquip)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, (ushort)PacketType.ClientPacket.RequestEquip);
+            Message message = Message.Create(MessageSendMode.Reliable, (ushort)PacketType.SailClientPacket.RequestEquip);
             message.Add(nwo.NetworkID);
             message.Add(hand.NetworkID);
 
@@ -72,7 +73,7 @@ namespace INet
             else
                 message.Add(false);
 
-            NetworkManager.Instance.Core.Client.Send(message);
+            Manager.Instance.ClientCore.Send(message);
         }
 
         /// <summary>
@@ -81,10 +82,10 @@ namespace INet
         /// <param name="nwo"></param>
         public static void Activate(NetworkObject objectToActivate, NetworkObject hand)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, (ushort)PacketType.ClientPacket.Activate);
+            Message message = Message.Create(MessageSendMode.Reliable, (ushort)PacketType.SailClientPacket.Activate);
             message.Add(objectToActivate.NetworkID);
             message.Add(hand.NetworkID);
-            NetworkManager.Instance.Core.Client.Send(message);
+            Manager.Instance.ClientCore.Send(message);
         }
     }
 }

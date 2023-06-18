@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 using Riptide;
 using UnityEngine;
-using Logger = INet.Util.Logger;
+using Logger = Sail.Util.Logger;
 
-using UnityEngine.XR.Interaction.Toolkit;
+using Sail.Data;
 
 
-namespace INet
+namespace Sail.Core.Client
 {
     public static class ClientReceive
     {
@@ -22,9 +22,9 @@ namespace INet
         private static void SyncTick(Message message)
         {
             uint serverTick = message.GetUInt();
-            if (Mathf.Abs(NetworkManager.Instance.TimeManager.CurrentTick - serverTick) > 10)
+            if (Mathf.Abs(Manager.Instance.TimeManager.CurrentTick - serverTick) > 10)
             {
-                NetworkManager.Instance.TimeManager.CurrentTick = serverTick;
+                Manager.Instance.TimeManager.CurrentTick = serverTick;
             }
         }
 
@@ -41,7 +41,7 @@ namespace INet
             Vector3 spawnPosition = message.GetVector3();
             Quaternion spawnRotation = message.GetQuaternion();
 
-            NetworkManager.Instance.Core.SpawnPlayer(username, playerID, networkID, spawnPosition, spawnRotation);
+            Manager.Instance.Core.SpawnPlayer(username, playerID, networkID, spawnPosition, spawnRotation);
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace INet
         private static void DestroyPlayer(Message message)
         {
             ushort playerID = message.GetUShort();
-            NetworkManager.Instance.Core.DestroyPlayer(playerID);
+            Manager.Instance.Core.DestroyPlayer(playerID);
         }
 
         /// <summary>
@@ -64,8 +64,8 @@ namespace INet
             Vector3 newPosition = message.GetVector3();
             Quaternion newRotation = message.GetQuaternion();
 
-            NetworkManager.Instance.Players[playerID].transform.position = newPosition;
-            NetworkManager.Instance.Players[playerID].transform.rotation = newRotation;
+            Manager.Instance.Players[playerID].transform.position = newPosition;
+            Manager.Instance.Players[playerID].transform.rotation = newRotation;
         }
 
 
@@ -80,12 +80,12 @@ namespace INet
             Vector3 spawnPosition = message.GetVector3();
             Quaternion spawnRotation = message.GetQuaternion();
 
-            if (NetworkManager.Instance.NetworkedObjects.ContainsKey(networkID))
+            if (Manager.Instance.NetworkedObjects.ContainsKey(networkID))
             {
                 Logger.Log("Object already exits. Won't spawn new version.");
             }
 
-            NetworkManager.Instance.Core.SpawnNetworkObject(networkID, itemID, spawnPosition, spawnRotation);
+            Manager.Instance.Core.SpawnNetworkObject(networkID, itemID, spawnPosition, spawnRotation);
         }
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace INet
         private static void DestroyNetworkObject(Message message)
         {
             int networkID = message.GetInt();
-            NetworkManager.Instance.Core.DestroyNetworkObject(networkID);
+            Manager.Instance.Core.DestroyNetworkObject(networkID);
         }
 
         /// <summary>
@@ -106,11 +106,11 @@ namespace INet
         {
             int networkID = message.GetInt();
 
-            if (!NetworkManager.Instance.NetworkedObjects.ContainsKey(networkID))
+            if (!Manager.Instance.NetworkedObjects.ContainsKey(networkID))
                 return;
 
             //If we have authority over this object or it is owned by the client then discard the incoming packet
-            if (NetworkManager.Instance.NetworkedObjects[networkID].AuthorityID == NetworkManager.Instance.Core.Client.Id || NetworkManager.Instance.Core.ClientObjects.ContainsKey(networkID))
+            if (Manager.Instance.NetworkedObjects[networkID].AuthorityID == Manager.Instance.Core.Client.Id || Manager.Instance.Core.ClientObjects.ContainsKey(networkID))
             {
                 return;
             }
@@ -118,8 +118,8 @@ namespace INet
             Vector3 newPosition = message.GetVector3();
             Quaternion newRotation = message.GetQuaternion();
 
-            NetworkManager.Instance.NetworkedObjects[networkID].transform.position = newPosition;
-            NetworkManager.Instance.NetworkedObjects[networkID].transform.rotation = newRotation;
+            Manager.Instance.NetworkedObjects[networkID].transform.position = newPosition;
+            Manager.Instance.NetworkedObjects[networkID].transform.rotation = newRotation;
         }
 
         /// <summary>
@@ -137,19 +137,19 @@ namespace INet
 
             Debug.Log("Updating " + networkID + " to " + clientID);
 
-            XRGrabInteractable interactable = NetworkManager.Instance.NetworkedObjects[networkID].gameObject.GetComponent<XRGrabInteractable>();
+            XRGrabInteractable interactable = Manager.Instance.NetworkedObjects[networkID].gameObject.GetComponent<XRGrabInteractable>();
 
-            if (clientID == NetworkManager.Instance.Core.Client.Id)
+            if (clientID == Manager.Instance.Core.Client.Id)
             {
                 if ((ClientAuthorityType)newAuth == ClientAuthorityType.Full)
                 {
-                    Rigidbody rigidbody = NetworkManager.Instance.NetworkedObjects[networkID].gameObject.GetComponent<Rigidbody>();
+                    Rigidbody rigidbody = Manager.Instance.NetworkedObjects[networkID].gameObject.GetComponent<Rigidbody>();
                     if (rigidbody != null)
                     {
                         rigidbody.isKinematic = false;
                     }
 
-                    Debug.Log("Have authority over " + NetworkManager.Instance.NetworkedObjects[networkID].name);
+                    Debug.Log("Have authority over " + Manager.Instance.NetworkedObjects[networkID].name);
                 }
 
 
@@ -157,9 +157,9 @@ namespace INet
                 //IN FUTURE THIS SHOULD BE DONE IN THE MANAGER - NOT HERE :)
                 if ((ClientAuthorityType)newAuth == ClientAuthorityType.None)
                 {
-                    if (NetworkManager.Instance.Core.ClientObjects.ContainsKey(networkID))
+                    if (Manager.Instance.Core.ClientObjects.ContainsKey(networkID))
                     {
-                        NetworkManager.Instance.Core.ClientObjects.Remove(networkID);
+                        Manager.Instance.Core.ClientObjects.Remove(networkID);
                     }
                 }
             }
@@ -191,7 +191,7 @@ namespace INet
             }
 
             Authority.RegisterClientAuthority(networkID, clientID, (ClientAuthorityType)newAuth);
-            NetworkManager.Instance.NetworkedObjects[networkID].SetAuthority(clientID);
+            Manager.Instance.NetworkedObjects[networkID].SetAuthority(clientID);
         }
 
         /// <summary>
@@ -204,7 +204,7 @@ namespace INet
             ushort listIndex = message.GetUShort();
             int childNetworkID = message.GetInt();
 
-            NetworkManager.Instance.Core.AssignSubObject(parentNetworkID, listIndex, childNetworkID);
+            Manager.Instance.Core.AssignSubObject(parentNetworkID, listIndex, childNetworkID);
         }
 
         /// <summary>
@@ -230,7 +230,7 @@ namespace INet
             int networkID = message.GetInt();
             byte flags = message.GetByte();
 
-            NetworkManager.Instance.NetworkedObjects[networkID].SetFlags(flags);
+            Manager.Instance.NetworkedObjects[networkID].SetFlags(flags);
         }
     }
 }

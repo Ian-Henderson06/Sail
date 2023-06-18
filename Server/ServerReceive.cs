@@ -16,32 +16,32 @@ namespace Sail.Core.Server
         /// Received the players information.
         /// Spawn player on server and tell clients to duplicate.
         /// </summary>
-        [MessageHandler((ushort)PacketType.ClientPacket.PlayerInformation)]
+        [MessageHandler((ushort)PacketType.SailClientPacket.PlayerInformation)]
         private static void PlayerInformation(ushort clientID, Message message)
         {
             string username = message.GetString();
-            NetworkPlayer player = NetworkManager.Instance.Core.SpawnPlayer(username, clientID);
+            NetworkPlayer player = Manager.Instance.Core.SpawnPlayer(username, clientID);
             ServerSend.SpawnPlayer(player);
-            NetworkManager.Instance.Core.UpdateNetworkObjectAuthority(player.NetworkID, clientID, ClientAuthorityType.Full); //Give clients full authority of their player objects.
+            Manager.Instance.Core.UpdateNetworkObjectAuthority(player.NetworkID, clientID, ClientAuthorityType.Full); //Give clients full authority of their player objects.
 
             //If has sub objects then assign them
-            if (NetworkManager.Instance.NetworkedObjects[player.NetworkID].SubObjects.Length > 0)
+            if (Manager.Instance.NetworkedObjects[player.NetworkID].SubObjects.Length > 0)
             {
-                NetworkManager.Instance.Core.AssignSubObjects(player.NetworkID);
+                Manager.Instance.Core.AssignSubObjects(player.NetworkID);
 
-                foreach (SubNetworkObject child in NetworkManager.Instance.NetworkedObjects[player.NetworkID].SubObjects)
+                foreach (SubNetworkObject child in Manager.Instance.NetworkedObjects[player.NetworkID].SubObjects)
                 {
-                    NetworkManager.Instance.Core.UpdateNetworkObjectAuthority(child.NetworkID, clientID, ClientAuthorityType.Full); //Give clients full authority of their player sub objects.
+                    Manager.Instance.Core.UpdateNetworkObjectAuthority(child.NetworkID, clientID, ClientAuthorityType.Full); //Give clients full authority of their player sub objects.
                 }
             }
 
-            NetworkManager.Instance.Core.UpdateJoinedPlayer(clientID);
+            Manager.Instance.Core.UpdateJoinedPlayer(clientID);
         }
 
         /// <summary>
         /// Allow clients to request some form of authority over an object.
         /// </summary>
-        [MessageHandler((ushort)PacketType.ClientPacket.RequestAuthorityObject)]
+        [MessageHandler((ushort)PacketType.SailClientPacket.RequestAuthorityObject)]
         private static void RequestAuthority(ushort clientID, Message message)
         {
             int networkID = message.GetInt();
@@ -54,14 +54,14 @@ namespace Sail.Core.Server
                 if (Authority.GetAuthorityOwner(networkID) != clientID && Authority.GetAuthorityOwner(networkID) != int.MaxValue)
                 {
                     //Not server owned but owned by another client
-                    ServerSend.UpdateAuthoritySpecific(NetworkManager.Instance.NetworkedObjects[networkID], clientID, ClientAuthorityType.None);
+                    ServerSend.UpdateAuthoritySpecific(Manager.Instance.NetworkedObjects[networkID], clientID, ClientAuthorityType.None);
                     Logger.LogWarning($"Refused authority change request. Object already owned by {Authority.GetAuthorityOwner(networkID)} already.");
                     return;
                 }
             }
 
 
-            Rigidbody rigidbody = NetworkManager.Instance.NetworkedObjects[networkID].GetComponent<Rigidbody>();
+            Rigidbody rigidbody = Manager.Instance.NetworkedObjects[networkID].GetComponent<Rigidbody>();
             if ((ClientAuthorityType)authorityType == ClientAuthorityType.Full)
             {
                 if (rigidbody != null)
@@ -69,7 +69,7 @@ namespace Sail.Core.Server
                     rigidbody.isKinematic = true;
                 }
                 Authority.RegisterClientAuthority(networkID, clientID, (ClientAuthorityType)authorityType);
-                NetworkManager.Instance.NetworkedObjects[networkID].SetAuthority(clientID);
+                Manager.Instance.NetworkedObjects[networkID].SetAuthority(clientID);
             }
             else
             {
@@ -80,19 +80,19 @@ namespace Sail.Core.Server
                 if (Authority.GetAuthorityOwner(networkID) != null)
                     Authority.UnregisterClientAuthority(networkID);
 
-                NetworkManager.Instance.NetworkedObjects[networkID].SetAuthority(int.MaxValue);
+                Manager.Instance.NetworkedObjects[networkID].SetAuthority(int.MaxValue);
             }
 
-            ServerSend.UpdateAuthority(NetworkManager.Instance.NetworkedObjects[networkID], (ClientAuthorityType)authorityType);
+            ServerSend.UpdateAuthority(Manager.Instance.NetworkedObjects[networkID], (ClientAuthorityType)authorityType);
 
-            Logger.LogWarning($"Authority of object {networkID} has changed to {(ClientAuthorityType)authorityType} and now has authority id of {NetworkManager.Instance.NetworkedObjects[networkID].AuthorityID}. This was requested by client {clientID}.");
+            Logger.LogWarning($"Authority of object {networkID} has changed to {(ClientAuthorityType)authorityType} and now has authority id of {Manager.Instance.NetworkedObjects[networkID].AuthorityID}. This was requested by client {clientID}.");
 
         }
 
         /// <summary>
         /// Allow clients to update the position of an object they have authority over.
         /// </summary>
-        [MessageHandler((ushort)PacketType.ClientPacket.RequestUpdateObject)]
+        [MessageHandler((ushort)PacketType.SailClientPacket.RequestUpdateObject)]
         private static void RequestUpdate(ushort clientID, Message message)
         {
             int networkID = message.GetInt();
@@ -102,7 +102,7 @@ namespace Sail.Core.Server
                 {
                     Vector3 position = message.GetVector3();
                     Quaternion rotation = message.GetQuaternion();
-                    GameObject obj = NetworkManager.Instance.NetworkedObjects[networkID].gameObject;
+                    GameObject obj = Manager.Instance.NetworkedObjects[networkID].gameObject;
                     obj.transform.position = position;
                     obj.transform.rotation = rotation;
                 }
@@ -115,30 +115,6 @@ namespace Sail.Core.Server
             {
                 Logger.LogWarning($"{clientID} does not have authority over {networkID}.");
             }
-        }
-
-        [MessageHandler((ushort)PacketType.ClientPacket.RequestEquip)]
-        private static void RequestEquip(ushort clientID, Message message)
-        {
-            int equippedObjectsID = message.GetInt();
-            int handID = message.GetInt();
-            bool shouldEquip = message.GetBool();
-
-            ServerPlayer player = NetworkManager.Instance.Players[clientID].gameObject.GetComponent<ServerPlayer>();
-
-            if (shouldEquip)
-                player.SetEquipped(handID, equippedObjectsID);
-            else
-                player.UnEquip(handID);
-        }
-
-        [MessageHandler((ushort)PacketType.ClientPacket.Activate)]
-        private static void Activate(ushort clientID, Message message)
-        {
-            int objectID = message.GetInt();
-            int handID = message.GetInt();
-            ServerPlayer player = NetworkManager.Instance.Players[clientID].gameObject.GetComponent<ServerPlayer>();
-            player.Activate(objectID, handID);
         }
     }
 }

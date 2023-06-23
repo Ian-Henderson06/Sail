@@ -55,7 +55,7 @@ namespace Sail
 
             foreach (Type classType in types)
             {
-                Logger.Log("TYPE FOUND " + classType);
+                //Logger.Log("TYPE FOUND " + classType);
                 //Fetch all methods tagged as RPC in this class.
                 MethodInfo[] methods = classType
                     .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
@@ -64,7 +64,7 @@ namespace Sail
 
                 Array.Sort(methods, delegate (MethodInfo x, MethodInfo y) { return String.Compare(x.Name, y.Name, StringComparison.InvariantCulture); });
 
-                Logger.Log("Methods count " + methods.Length);
+                Logger.Log("Found " + methods.Length + " RPC methods.");
 
                 Dictionary<string, int> MethodNameToID = new Dictionary<string, int>();
                 int index = 0;

@@ -62,7 +62,7 @@ namespace Sail
             int largest = 0;
             foreach (KeyValuePair<ushort, int> pair in _bytes)
             {
-                if (Manager.Instance.Core.IsServer())
+                if (Manager.Instance.ServerCore != null)
                     Logger.Log($"MEASURE: Packet {Enum.GetName(typeof(PacketType.SailServerPacket), pair.Key)} Total: {pair.Value} bytes per tick.");
                 else
                     Logger.Log($"MEASURE: Packet {Enum.GetName(typeof(PacketType.SailClientPacket), pair.Key)} Total: {pair.Value} bytes per tick.");
@@ -77,7 +77,7 @@ namespace Sail
             }
             Logger.Log($"TOTAL: {total} bytes per tick.");
 
-            if (Manager.Instance.Core.IsServer())
+            if (Manager.Instance.ServerCore != null)
                 Logger.Log($"LARGEST is: {Enum.GetName(typeof(PacketType.SailServerPacket), keyOfLargest)} with total size of {largest} bytes per tick.");
             else
                 Logger.Log($"LARGEST is: {Enum.GetName(typeof(PacketType.SailClientPacket), keyOfLargest)} with total size of {largest} bytes per tick.");

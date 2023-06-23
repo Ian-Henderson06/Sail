@@ -39,8 +39,6 @@ namespace Sail.Core.Client
 
         public Peer GetPeer() => _client;
 
-        public bool IsServer() => false;
-
         private void OnDestroy()
         {
             Manager.Instance.OnTick -= OnTick;
@@ -100,13 +98,13 @@ namespace Sail.Core.Client
 
             if (playerNetwork == null)
             {
-                Logger.LogError($"Could not fetch SailPlayer script from player prefab.");
+                Logger.LogError($"Could not fetch SailPlayer script from player prefab.", this);
                 return null;
             }
 
             if (networkItem == null)
             {
-                Logger.LogError($"Could not fetch NetworkObject script from player prefab.");
+                Logger.LogError($"Could not fetch NetworkObject script from player prefab.", this);
                 return null;
             }
 
@@ -157,7 +155,7 @@ namespace Sail.Core.Client
 
             if (networkItem == null)
             {
-                Logger.LogError($"Could not fetch NetworkObject script from prefab.");
+                Logger.LogError($"Could not fetch NetworkObject script from prefab.", this);
                 return null;
             }
 

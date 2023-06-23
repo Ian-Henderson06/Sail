@@ -41,8 +41,6 @@ namespace Sail.Core.Server
 
         public Peer GetPeer() => _server;
 
-        public bool IsServer() => true;
-
         private void OnDestroy()
         {
             Manager.Instance.OnTick -= OnTick;
@@ -54,8 +52,6 @@ namespace Sail.Core.Server
 
         public void InitialiseCore()
         {
-            Manager.Instance.AssignCore(true, this);
-
             Logger.Log("Initialising Server Core.");
             _hasStarted = false;
             _server = new Riptide.Server();
@@ -88,13 +84,13 @@ namespace Sail.Core.Server
 
             if (playerNetwork == null)
             {
-                Logger.LogError($"Could not fetch SailPlayer script from player prefab.");
+                Logger.LogError($"Could not fetch SailPlayer script from player prefab.", this);
                 return null;
             }
 
             if (networkItem == null)
             {
-                Logger.LogError($"Could not fetch NetworkObject script from player prefab.");
+                Logger.LogError($"Could not fetch NetworkObject script from player prefab.", this);
                 return null;
             }
 
@@ -153,7 +149,7 @@ namespace Sail.Core.Server
 
             if (networkItem == null)
             {
-                Logger.LogError($"Could not fetch NetworkObject script from prefab.");
+                Logger.LogError($"Could not fetch NetworkObject script from prefab.", this);
                 return null;
             }
 
@@ -304,7 +300,7 @@ namespace Sail.Core.Server
             //If error here then object has no persistent data - ensure _persistentData.Add is called when an object is created that needs persistent data
             if (_persistentData[networkID] == null)
             {
-                Logger.LogError("Cant add persistent data because network object doesnt have space in dictionary. Please ensure network object was setup correctly");
+                Logger.LogError("Cant add persistent data because network object doesnt have space in dictionary. Please ensure network object was setup correctly", this);
             }
 
             _persistentData[networkID].AddMessage(packetType, message);

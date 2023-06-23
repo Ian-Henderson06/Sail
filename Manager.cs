@@ -20,12 +20,10 @@ namespace Sail
     /// Shared across client and server.
     /// Gateway to the networking system and allows access to players as well as the main network object.
     /// </summary>
-    [RequireComponent(typeof(INetworkCore))]
     public class Manager : MonoBehaviour
     {
         //Properties
         public Peer Network { get; private set; }
-        public INetworkCore Core { get { return _core; } }
         public ServerCore ServerCore { get { return _serverCore; } }
         public ClientCore ClientCore { get { return _clientCore; } }
         public Dictionary<ushort, SailPlayer> Players { get; private set; }
@@ -38,12 +36,12 @@ namespace Sail
         public event Action OnPostTick;
 
         //Serialized private fields
-        [SerializeField] private float _ticksPerSecond;
+        [SerializeField] private float _ticksPerSecond = 64;
         [SerializeField] private bool _measurePackets;
 
         //Private fields
         private TimeManager _timeManager;
-        private INetworkCore _core;
+
         private ServerCore _serverCore;
         private ClientCore _clientCore;
 
@@ -87,6 +85,9 @@ namespace Sail
             _timeManager.SetupTimeManager(_tickRate);
             _timeManager.OnTick += Tick; //Bind local OnTick method to the time managers OnTick method.
 
+            _clientCore = null;
+            _serverCore = null;
+
 
             _measure = new Measure();
             OnPostTick += () =>
@@ -99,12 +100,32 @@ namespace Sail
             };
 
 
-            Logger.Log($"Initialising INet with a tick rate of {_tickRate}ms estimated {_ticksPerSecond} ticks per second.");
+            Logger.Log($"Initialising Sail with a tick rate of {_tickRate}ms estimated {_ticksPerSecond} ticks per second.");
 
-            if (_core == null)
+
+            _clientCore = gameObject.GetComponent<ClientCore>();
+            _serverCore = gameObject.GetComponent<ServerCore>();
+
+            if (_clientCore != null && _serverCore != null)
             {
-                _core = gameObject.GetComponent<INetworkCore>();
-                _core.InitialiseCore();
+                Logger.LogError($"Two cores found. Sail does not currently support same host running of client and server. Please create a new project and seperate the two. Only one core can be used per instance.");
+                return;
+            }
+
+            if (_serverCore != null)
+            {
+                _serverCore.InitialiseCore();
+            }
+
+            if (_clientCore != null)
+            {
+                _clientCore.InitialiseCore();
+            }
+
+            if (_clientCore == null && _serverCore == null)
+            {
+                Logger.LogError($"No core found. Please include a Client or Server core for networking to operate.");
+                return;
             }
 
             //These methods are only used on the client.
@@ -190,19 +211,6 @@ namespace Sail
             }
 
             NetworkedObjects.Remove(nwo.NetworkID);
-        }
-
-        /// <summary>
-        /// Externally assign an initialised core as either a server or client core.
-        /// </summary>
-        /// <param name="IsServer"></param>
-        /// <param name="core"></param>
-        public void AssignCore(bool IsServer, INetworkCore core)
-        {
-            if (IsServer)
-                _serverCore = (ServerCore)core;
-            else
-                _clientCore = (ClientCore)core;
         }
     }
 }

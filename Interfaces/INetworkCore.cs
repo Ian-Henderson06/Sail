@@ -18,12 +18,6 @@ namespace Sail
         /// Initialise core, connecting any events and setting any variables that are required before startup.
         /// </summary>
         public void InitialiseCore();
-
-        /// <summary>
-        /// Is this core the server?
-        /// </summary>
-        /// <returns></returns>
-        public bool IsServer();
     }
 
 }

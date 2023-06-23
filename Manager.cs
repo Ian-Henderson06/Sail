@@ -109,6 +109,7 @@ namespace Sail
             if (_clientCore != null && _serverCore != null)
             {
                 Logger.LogError($"Two cores found. Sail does not currently support same host running of client and server. Please create a new project and seperate the two. Only one core can be used per instance.");
+
                 return;
             }
 
@@ -154,7 +155,7 @@ namespace Sail
         /// </summary>
         /// <param name="playerID"></param>
         /// <param name="player"></param>
-        public void AddPlayer(SailPlayer player)
+        internal void AddPlayer(SailPlayer player)
         {
             if (Players.TryGetValue(player.PlayerID, out _))
             {
@@ -171,7 +172,7 @@ namespace Sail
         /// </summary>
         /// <param name="playerID"></param>
         /// <param name="player"></param>
-        public void RemovePlayer(SailPlayer player)
+        internal void RemovePlayer(SailPlayer player)
         {
             if (!Players.TryGetValue(player.PlayerID, out _))
             {
@@ -186,7 +187,7 @@ namespace Sail
         /// Adds a reference to a networked object to the internal register.
         /// </summary>
         /// <param name="nwo"></param>
-        public void AddNetworkObject(NetworkObject nwo)
+        internal void AddNetworkObject(NetworkObject nwo)
         {
             if (NetworkedObjects.TryGetValue(nwo.NetworkID, out _))
             {
@@ -202,7 +203,7 @@ namespace Sail
         /// </summary>
         /// <param name="playerID"></param>
         /// <param name="player"></param>
-        public void RemoveNetworkObject(NetworkObject nwo)
+        internal void RemoveNetworkObject(NetworkObject nwo)
         {
             if (!NetworkedObjects.TryGetValue(nwo.NetworkID, out _))
             {

@@ -44,10 +44,14 @@ namespace Sail.Core.Server
         private void OnDestroy()
         {
             Manager.Instance.OnTick -= OnTick;
-            _server.ClientConnected -= ClientConnected;
-            _server.ClientDisconnected -= ClientDisconnected;
 
-            _server.Stop();
+            if (_server != null)
+            {
+                _server.ClientConnected -= ClientConnected;
+                _server.ClientDisconnected -= ClientDisconnected;
+
+                _server.Stop();
+            }
         }
 
         public void InitialiseCore()
@@ -64,6 +68,12 @@ namespace Sail.Core.Server
 
         public void StartServer(ushort runningPort, ushort maxPlayers)
         {
+            if (_server == null)
+            {
+                Logger.LogError("Server hasn't been initialized - can't start server.", this);
+                return;
+            }
+
             Logger.Log("Starting server.");
             _server.Start(runningPort, maxPlayers);
 

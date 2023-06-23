@@ -43,7 +43,10 @@ namespace Sail.Core.Client
         {
             Manager.Instance.OnTick -= OnTick;
 
-            _client.Connected -= DidConnect;
+            if (_client != null)
+            {
+                _client.Connected -= DidConnect;
+            }
         }
 
         public void InitialiseCore()
@@ -66,14 +69,19 @@ namespace Sail.Core.Client
         /// </summary>
         /// <param name="address">IP and port of the server to connect to.</param>
         /// <param name="connectionAttempts">Maximum number of attempts to connect.</param>
-        public void AttemptConnection(string address, int connectionAttempts = 5)
+        public bool AttemptConnection(string address, int connectionAttempts = 5)
         {
+            if (_client == null)
+            {
+                Logger.LogError("Client hasn't been initialized - can't attempt connect to server.", this);
+                return false;
+            }
+
             _hasStarted = true;
             Logger.Log("Starting client.");
-            Logger.Log($"Connecting to {address}...");
-            _client.Connect(address, connectionAttempts);
-
-
+            Logger.Log($"Attempting connection to {address}...");
+            bool result = _client.Connect(address, connectionAttempts);
+            return result;
         }
 
         /// <summary>

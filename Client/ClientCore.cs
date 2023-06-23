@@ -61,6 +61,8 @@ namespace Sail.Core.Client
 
         }
 
+
+
         /// <summary>
         /// Try to connect the client to a server.
         /// </summary>
@@ -165,8 +167,6 @@ namespace Sail.Core.Client
                 rigidbody.isKinematic = true;
             }
 
-            AssignInteractableHandlers(networkItem); //Assigns parent handlers
-
             networkItem.InitialiseObject(networkID, itemID);
             Manager.Instance.AddNetworkObject(networkItem);
 
@@ -216,6 +216,15 @@ namespace Sail.Core.Client
             Manager.Instance.NetworkedObjects[parentNetworkID].SubObjects[listIndex].InitialiseObject(childNetworkID, -1);
             Manager.Instance.NetworkedObjects[parentNetworkID].SubObjects[listIndex].InitializeSubObject(parentNetworkID, listIndex);
             Manager.Instance.AddNetworkObject(Manager.Instance.NetworkedObjects[parentNetworkID].SubObjects[listIndex]);
+        }
+
+        /// <summary>
+        /// Send from the client to the server.
+        /// Wrapper around Riptides method.
+        /// </summary>
+        public void Send(Message message, bool shouldRelease = true)
+        {
+            _client.Send(message, shouldRelease);
         }
 
 

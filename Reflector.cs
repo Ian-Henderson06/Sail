@@ -10,6 +10,7 @@ using System;
 using System.Linq;
 using Sail.Util;
 using Riptide;
+using Sail.Data;
 
 namespace Sail
 {
@@ -208,7 +209,7 @@ namespace Sail
 
         public static void DeSerializeAndCallRPC(int networkID, string methodName, ref Message message)
         {
-            Type targetType = NetworkManager.Instance.NetworkedObjects[networkID].GetType();
+            Type targetType = Manager.Instance.NetworkedObjects[networkID].GetType();
             Debug.Log("RPC RECEIVED: TARGET TYPE " + targetType);
             MethodInfo methodInfo = GetMethod(targetType, methodName);
             ParameterInfo[] parameterInfos = methodInfo.GetParameters();
@@ -260,7 +261,7 @@ namespace Sail
                     throw new System.Exception("DeSerialization for RPC is impossible - Incompatible parameter type: " + info.ParameterType.GetType());
             }
 
-            methodInfo.Invoke(NetworkManager.Instance.NetworkedObjects[networkID], parameters);
+            methodInfo.Invoke(Manager.Instance.NetworkedObjects[networkID], parameters);
         }
     }
 }

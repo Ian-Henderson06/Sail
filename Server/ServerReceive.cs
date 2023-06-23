@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Riptide;
+using Sail.Data;
 using UnityEngine;
 using Logger = Sail.Util.Logger;
 
@@ -20,22 +21,22 @@ namespace Sail.Core.Server
         private static void PlayerInformation(ushort clientID, Message message)
         {
             string username = message.GetString();
-            NetworkPlayer player = Manager.Instance.Core.SpawnPlayer(username, clientID);
+            SailPlayer player = Manager.Instance.ServerCore.SpawnPlayer(username, clientID);
             ServerSend.SpawnPlayer(player);
-            Manager.Instance.Core.UpdateNetworkObjectAuthority(player.NetworkID, clientID, ClientAuthorityType.Full); //Give clients full authority of their player objects.
+            Manager.Instance.ServerCore.UpdateNetworkObjectAuthority(player.NetworkID, clientID, ClientAuthorityType.Full); //Give clients full authority of their player objects.
 
             //If has sub objects then assign them
             if (Manager.Instance.NetworkedObjects[player.NetworkID].SubObjects.Length > 0)
             {
-                Manager.Instance.Core.AssignSubObjects(player.NetworkID);
+                Manager.Instance.ServerCore.AssignSubObjects(player.NetworkID);
 
                 foreach (SubNetworkObject child in Manager.Instance.NetworkedObjects[player.NetworkID].SubObjects)
                 {
-                    Manager.Instance.Core.UpdateNetworkObjectAuthority(child.NetworkID, clientID, ClientAuthorityType.Full); //Give clients full authority of their player sub objects.
+                    Manager.Instance.ServerCore.UpdateNetworkObjectAuthority(child.NetworkID, clientID, ClientAuthorityType.Full); //Give clients full authority of their player sub objects.
                 }
             }
 
-            Manager.Instance.Core.UpdateJoinedPlayer(clientID);
+            Manager.Instance.ServerCore.UpdateJoinedPlayer(clientID);
         }
 
         /// <summary>

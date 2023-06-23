@@ -19,7 +19,7 @@ namespace Sail
         /// Lists the byte count for each packet type
         /// </summary>
         private Dictionary<ushort, int> _bytes;
-     
+
         public Measure()
         {
             _bytes = new Dictionary<ushort, int>();
@@ -32,7 +32,7 @@ namespace Sail
         /// <param name="packetType"></param>
         public void AddToMeasure(int bytes, ushort packetType)
         {
-            if(_bytes.ContainsKey(packetType))
+            if (_bytes.ContainsKey(packetType))
             {
                 int oldBytes = _bytes[packetType];
                 _bytes[packetType] = oldBytes + bytes;
@@ -62,12 +62,12 @@ namespace Sail
             int largest = 0;
             foreach (KeyValuePair<ushort, int> pair in _bytes)
             {
-                if(NetworkManager.Instance.Core.IsServer())
-                    Logger.Log($"MEASURE: Packet {Enum.GetName(typeof(PacketType.ServerPacket), pair.Key)} Total: {pair.Value} bytes per tick.");
+                if (Manager.Instance.Core.IsServer())
+                    Logger.Log($"MEASURE: Packet {Enum.GetName(typeof(PacketType.SailServerPacket), pair.Key)} Total: {pair.Value} bytes per tick.");
                 else
-                    Logger.Log($"MEASURE: Packet {Enum.GetName(typeof(PacketType.ClientPacket), pair.Key)} Total: {pair.Value} bytes per tick.");
+                    Logger.Log($"MEASURE: Packet {Enum.GetName(typeof(PacketType.SailClientPacket), pair.Key)} Total: {pair.Value} bytes per tick.");
 
-                if(pair.Value > largest)
+                if (pair.Value > largest)
                 {
                     largest = pair.Value;
                     keyOfLargest = pair.Key;
@@ -77,11 +77,11 @@ namespace Sail
             }
             Logger.Log($"TOTAL: {total} bytes per tick.");
 
-              if(NetworkManager.Instance.Core.IsServer())
-                    Logger.Log($"LARGEST is: {Enum.GetName(typeof(PacketType.ServerPacket), keyOfLargest)} with total size of {largest} bytes per tick.");
-                else
-                     Logger.Log($"LARGEST is: {Enum.GetName(typeof(PacketType.ClientPacket), keyOfLargest)} with total size of {largest} bytes per tick.");
-           
+            if (Manager.Instance.Core.IsServer())
+                Logger.Log($"LARGEST is: {Enum.GetName(typeof(PacketType.SailServerPacket), keyOfLargest)} with total size of {largest} bytes per tick.");
+            else
+                Logger.Log($"LARGEST is: {Enum.GetName(typeof(PacketType.SailClientPacket), keyOfLargest)} with total size of {largest} bytes per tick.");
+
             Logger.Log("END MEASURE");
         }
     }

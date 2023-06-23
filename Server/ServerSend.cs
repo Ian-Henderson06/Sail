@@ -20,7 +20,7 @@ namespace Sail.Core.Server
             message.Add(Manager.Instance.TimeManager.CurrentTick);
 
             Manager.Instance.Measure.AddToMeasure(message.WrittenLength, (ushort)PacketType.SailServerPacket.Sync);
-            Manager.Instance.Core.Server.SendToAll(message);
+            Manager.Instance.ServerCore.SendToAll(message);
         }
 
         /// <summary>
@@ -38,9 +38,9 @@ namespace Sail.Core.Server
 
 
             if (clientID == -1)
-                Manager.Instance.Core.Server.SendToAll(message);
+                Manager.Instance.ServerCore.SendToAll(message);
             else
-                Manager.Instance.Core.Server.Send(message, (ushort)clientID);
+                Manager.Instance.ServerCore.Send(message, (ushort)clientID);
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace Sail.Core.Server
         {
             Message message = Message.Create(MessageSendMode.Reliable, (ushort)PacketType.SailServerPacket.DestroyPlayer);
             message.Add(player.PlayerID);
-            Manager.Instance.Core.Server.SendToAll(message);
+            Manager.Instance.ServerCore.SendToAll(message);
         }
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace Sail.Core.Server
             message.Add(player.gameObject.transform.rotation);
 
             Manager.Instance.Measure.AddToMeasure(message.WrittenLength, (ushort)PacketType.SailServerPacket.UpdatePlayer);
-            Manager.Instance.Core.Server.SendToAll(message);
+            Manager.Instance.ServerCore.SendToAll(message);
         }
 
 
@@ -85,9 +85,9 @@ namespace Sail.Core.Server
             message.Add(obj.gameObject.transform.rotation);
 
             if (clientID == -1)
-                Manager.Instance.Core.Server.SendToAll(message);
+                Manager.Instance.ServerCore.SendToAll(message);
             else
-                Manager.Instance.Core.Server.Send(message, (ushort)clientID);
+                Manager.Instance.ServerCore.Send(message, (ushort)clientID);
         }
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace Sail.Core.Server
         {
             Message message = Message.Create(MessageSendMode.Reliable, (ushort)PacketType.SailServerPacket.DestroyObject);
             message.Add(obj.NetworkID);
-            Manager.Instance.Core.Server.SendToAll(message);
+            Manager.Instance.ServerCore.SendToAll(message);
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace Sail.Core.Server
             message.Add(obj.gameObject.transform.rotation);
 
             Manager.Instance.Measure.AddToMeasure(message.WrittenLength, (ushort)PacketType.SailServerPacket.UpdateObject);
-            Manager.Instance.Core.Server.SendToAll(message);
+            Manager.Instance.ServerCore.SendToAll(message);
         }
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace Sail.Core.Server
             message.Add(obj.NetworkID);
             message.Add(obj.AuthorityID);
             message.Add((ushort)auth);
-            Manager.Instance.Core.Server.SendToAll(message);
+            Manager.Instance.ServerCore.SendToAll(message);
         }
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace Sail.Core.Server
             message.Add(obj.NetworkID);
             message.Add(obj.AuthorityID);
             message.Add((ushort)auth);
-            Manager.Instance.Core.Server.Send(message, clientID);
+            Manager.Instance.ServerCore.Send(message, clientID);
         }
 
         /// <summary>
@@ -155,9 +155,9 @@ namespace Sail.Core.Server
             message.Add(child.NetworkID);
 
             if (clientID == -1)
-                Manager.Instance.Core.Server.SendToAll(message);
+                Manager.Instance.ServerCore.SendToAll(message);
             else
-                Manager.Instance.Core.Server.Send(message, (ushort)clientID);
+                Manager.Instance.ServerCore.Send(message, (ushort)clientID);
         }
 
         /// <summary>
@@ -173,7 +173,7 @@ namespace Sail.Core.Server
             message.Add(nwo.NetworkID);
             message.Add(methodName);
             Reflector.SerializeRPC(ref message, in parameters);
-            Manager.Instance.Core.Server.Send(message, (ushort)clientID);
+            Manager.Instance.ServerCore.Send(message, (ushort)clientID);
         }
 
         /// <summary>
@@ -198,12 +198,12 @@ namespace Sail.Core.Server
             //Logic depending on if message should be sent to new connecting clients or not
             if (persistent)
             {
-                Manager.Instance.Core.AddPersistentMessage(nwo.NetworkID, (ushort)PacketType.SailServerPacket.CallRPC, message);
-                Manager.Instance.Core.Server.SendToAll(message, false);
+                Manager.Instance.ServerCore.AddPersistentMessage(nwo.NetworkID, (ushort)PacketType.SailServerPacket.CallRPC, message);
+                Manager.Instance.ServerCore.SendToAll(message, false);
             }
             else
             {
-                Manager.Instance.Core.Server.SendToAll(message);
+                Manager.Instance.ServerCore.SendToAll(message);
             }
         }
 
@@ -218,9 +218,9 @@ namespace Sail.Core.Server
             message.Add(nwo.Flags);
 
             if (clientID == -1)
-                Manager.Instance.Core.Server.SendToAll(message);
+                Manager.Instance.ServerCore.SendToAll(message);
             else
-                Manager.Instance.Core.Server.Send(message, (ushort)clientID);
+                Manager.Instance.ServerCore.Send(message, (ushort)clientID);
         }
 
     }

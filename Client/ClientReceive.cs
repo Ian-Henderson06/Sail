@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,7 +18,7 @@ namespace Sail.Core.Client
         /// <summary>
         /// Received the new sync tick.
         /// </summary>
-        [MessageHandler((ushort)PacketType.ServerPacket.Sync)]
+        [MessageHandler((ushort)PacketType.SailServerPacket.Sync)]
         private static void SyncTick(Message message)
         {
             uint serverTick = message.GetUInt();
@@ -32,7 +32,7 @@ namespace Sail.Core.Client
         /// Received the spawn player packet.
         /// Spawn a player once packet has been received.
         /// </summary>
-        [MessageHandler((ushort)PacketType.ServerPacket.SpawnPlayer)]
+        [MessageHandler((ushort)PacketType.SailServerPacket.SpawnPlayer)]
         private static void SpawnPlayer(Message message)
         {
             ushort playerID = message.GetUShort();
@@ -41,23 +41,23 @@ namespace Sail.Core.Client
             Vector3 spawnPosition = message.GetVector3();
             Quaternion spawnRotation = message.GetQuaternion();
 
-            Manager.Instance.Core.SpawnPlayer(username, playerID, networkID, spawnPosition, spawnRotation);
+            Manager.Instance.ClientCore.SpawnPlayer(username, playerID, networkID, spawnPosition, spawnRotation);
         }
 
         /// <summary>
         /// Destroy a players representation on the client.
         /// </summary>
-        [MessageHandler((ushort)PacketType.ServerPacket.DestroyPlayer)]
+        [MessageHandler((ushort)PacketType.SailServerPacket.DestroyPlayer)]
         private static void DestroyPlayer(Message message)
         {
             ushort playerID = message.GetUShort();
-            Manager.Instance.Core.DestroyPlayer(playerID);
+            Manager.Instance.ClientCore.DestroyPlayer(playerID);
         }
 
         /// <summary>
         /// Update a players position on this client.
         /// </summary>
-        [MessageHandler((ushort)PacketType.ServerPacket.UpdatePlayer)]
+        [MessageHandler((ushort)PacketType.SailServerPacket.UpdatePlayer)]
         private static void UpdatePlayer(Message message)
         {
             ushort playerID = message.GetUShort();
@@ -72,7 +72,7 @@ namespace Sail.Core.Client
         /// <summary>
         /// Spawn a networked object on this client.
         /// </summary>
-        [MessageHandler((ushort)PacketType.ServerPacket.SpawnObject)]
+        [MessageHandler((ushort)PacketType.SailServerPacket.SpawnObject)]
         private static void SpawnNetworkObject(Message message)
         {
             int itemID = message.GetInt();
@@ -85,23 +85,23 @@ namespace Sail.Core.Client
                 Logger.Log("Object already exits. Won't spawn new version.");
             }
 
-            Manager.Instance.Core.SpawnNetworkObject(networkID, itemID, spawnPosition, spawnRotation);
+            Manager.Instance.ClientCore.SpawnNetworkObject(networkID, itemID, spawnPosition, spawnRotation);
         }
 
         /// <summary>
         /// Destroy a networked object on this client.
         /// </summary>
-        [MessageHandler((ushort)PacketType.ServerPacket.DestroyObject)]
+        [MessageHandler((ushort)PacketType.SailServerPacket.DestroyObject)]
         private static void DestroyNetworkObject(Message message)
         {
             int networkID = message.GetInt();
-            Manager.Instance.Core.DestroyNetworkObject(networkID);
+            Manager.Instance.ClientCore.DestroyNetworkObject(networkID);
         }
 
         /// <summary>
         /// Update a networked objects position.
         /// </summary>
-        [MessageHandler((ushort)PacketType.ServerPacket.UpdateObject)]
+        [MessageHandler((ushort)PacketType.SailServerPacket.UpdateObject)]
         private static void UpdateNetworkObject(Message message)
         {
             int networkID = message.GetInt();
@@ -110,7 +110,7 @@ namespace Sail.Core.Client
                 return;
 
             //If we have authority over this object or it is owned by the client then discard the incoming packet
-            if (Manager.Instance.NetworkedObjects[networkID].AuthorityID == Manager.Instance.Core.Client.Id || Manager.Instance.Core.ClientObjects.ContainsKey(networkID))
+            if (Manager.Instance.NetworkedObjects[networkID].AuthorityID == Manager.Instance.ClientCore.Client.Id || Manager.Instance.ClientCore.ClientObjects.ContainsKey(networkID))
             {
                 return;
             }
@@ -128,7 +128,7 @@ namespace Sail.Core.Client
         /// As far as the local player is concerned, the server has authority over all other entities,
         /// even if another player has control.
         /// </summary>
-        [MessageHandler((ushort)PacketType.ServerPacket.UpdateAuthorityObject)]
+        [MessageHandler((ushort)PacketType.SailServerPacket.UpdateAuthorityObject)]
         private static void UpdateAuthority(Message message)
         {
             int networkID = message.GetInt();
@@ -137,9 +137,7 @@ namespace Sail.Core.Client
 
             Debug.Log("Updating " + networkID + " to " + clientID);
 
-            XRGrabInteractable interactable = Manager.Instance.NetworkedObjects[networkID].gameObject.GetComponent<XRGrabInteractable>();
-
-            if (clientID == Manager.Instance.Core.Client.Id)
+            if (clientID == Manager.Instance.ClientCore.Client.Id)
             {
                 if ((ClientAuthorityType)newAuth == ClientAuthorityType.Full)
                 {
@@ -157,35 +155,9 @@ namespace Sail.Core.Client
                 //IN FUTURE THIS SHOULD BE DONE IN THE MANAGER - NOT HERE :)
                 if ((ClientAuthorityType)newAuth == ClientAuthorityType.None)
                 {
-                    if (Manager.Instance.Core.ClientObjects.ContainsKey(networkID))
+                    if (Manager.Instance.ClientCore.ClientObjects.ContainsKey(networkID))
                     {
-                        Manager.Instance.Core.ClientObjects.Remove(networkID);
-                    }
-                }
-            }
-            else
-            {
-                if ((ClientAuthorityType)newAuth == ClientAuthorityType.Full)
-                {
-                    //Turn off your interactable if it belongs to someone else
-                    if (interactable != null)
-                    {
-                        if (interactable.enabled)
-                        {
-                            interactable.enabled = false;
-                        }
-                    }
-                }
-
-                //Turn on your interactable if it belongs to someone else
-                if ((ClientAuthorityType)newAuth == ClientAuthorityType.None)
-                {
-                    if (interactable != null)
-                    {
-                        if (!interactable.enabled)
-                        {
-                            interactable.enabled = true;
-                        }
+                        Manager.Instance.ClientCore.ClientObjects.Remove(networkID);
                     }
                 }
             }
@@ -197,20 +169,20 @@ namespace Sail.Core.Client
         /// <summary>
         ///Receive an update from the server to assign and setup some sub objects.
         /// </summary>
-        [MessageHandler((ushort)PacketType.ServerPacket.AssignSubObject)]
+        [MessageHandler((ushort)PacketType.SailServerPacket.AssignSubObject)]
         private static void AssignSubObjects(Message message)
         {
             int parentNetworkID = message.GetInt();
             ushort listIndex = message.GetUShort();
             int childNetworkID = message.GetInt();
 
-            Manager.Instance.Core.AssignSubObject(parentNetworkID, listIndex, childNetworkID);
+            Manager.Instance.ClientCore.AssignSubObject(parentNetworkID, listIndex, childNetworkID);
         }
 
         /// <summary>
         ///Receive an update from the server to assign and setup some sub objects.
         /// </summary>
-        [MessageHandler((ushort)PacketType.ServerPacket.CallRPC)]
+        [MessageHandler((ushort)PacketType.SailServerPacket.CallRPC)]
         private static void HandleRPC(Message message)
         {
             int networkID = message.GetInt();
@@ -224,7 +196,7 @@ namespace Sail.Core.Client
         /// <summary>
         ///Receive an update from the server set flags on this client.
         /// </summary>
-        [MessageHandler((ushort)PacketType.ServerPacket.UpdateFlags)]
+        [MessageHandler((ushort)PacketType.SailServerPacket.UpdateFlags)]
         private static void Flags(Message message)
         {
             int networkID = message.GetInt();

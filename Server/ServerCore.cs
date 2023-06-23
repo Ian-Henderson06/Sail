@@ -37,7 +37,7 @@ namespace Sail.Core.Server
         private Dictionary<int, NetworkObjectPersistentData> _persistentData = new Dictionary<int, NetworkObjectPersistentData>();
 
         //Properties
-        public Server Server { get { return _server; } }
+        public Riptide.Server Server { get { return _server; } }
 
         public Peer GetPeer() => _server;
 
@@ -126,7 +126,7 @@ namespace Sail.Core.Server
                 {
                     foreach (SubNetworkObject child in Manager.Instance.NetworkedObjects[networkItem.NetworkID].SubObjects)
                     {
-                        NetworkManager.Instance.RemoveNetworkObject(child);
+                        Manager.Instance.RemoveNetworkObject(child);
                         Destroy(child.gameObject);
                     }
                 }
@@ -308,6 +308,33 @@ namespace Sail.Core.Server
             }
 
             _persistentData[networkID].AddMessage(packetType, message);
+        }
+
+        /// <summary>
+        /// Send from the server to a client.
+        /// Wrapper around Riptides method.
+        /// </summary>
+        public void Send(Message message, ushort toClient, bool shouldRelease = true)
+        {
+            _server.Send(message, toClient, shouldRelease);
+        }
+
+        /// <summary>
+        /// Send from the server to all clients except one.
+        /// Wrapper around Riptides method.
+        /// </summary>
+        public void SendToAll(Message message, ushort exceptToClient, bool shouldRelease = true)
+        {
+            _server.SendToAll(message, exceptToClient, shouldRelease);
+        }
+
+        /// <summary>
+        /// Send from the server to all clients.
+        /// Wrapper around Riptides method.
+        /// </summary>
+        public void SendToAll(Message message, bool shouldRelease = true)
+        {
+            _server.SendToAll(message, shouldRelease);
         }
 
 

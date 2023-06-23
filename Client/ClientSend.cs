@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +10,7 @@ using UnityEngine;
 
 using Logger = Sail.Util.Logger;
 
-namespace Sail.Core.Server
+namespace Sail.Core.Client
 {
     public static class ClientSend
     {

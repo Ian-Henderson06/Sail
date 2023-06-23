@@ -6,6 +6,7 @@ using UnityEngine;
 using Sail.Core;
 using Sail.Data;
 using Sail.Core.Server;
+using Sail.Core.Client;
 
 using Riptide;
 using Riptide.Utils;

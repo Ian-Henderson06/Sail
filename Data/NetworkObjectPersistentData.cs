@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Logger = INet.Util.Logger;
+using Logger = Sail.Util.Logger;
 
 namespace Sail.Data
 {

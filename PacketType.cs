@@ -27,6 +27,7 @@ namespace Sail
             AssignSubObject,
 
             CallRPC,
+            CallStaticRPC,
             UpdateFlags,
         }
 

@@ -188,9 +188,18 @@ namespace Sail.Core.Client
             int networkID = message.GetInt();
             string methodName = message.GetString();
 
-            Debug.Log("GOT RPC");
+            Reflector.CallRPC(networkID, methodName, ref message);
+        }
 
-            Reflector.DeSerializeAndCallRPC(networkID, methodName, ref message);
+        /// <summary>
+        ///Receive an update from the server to assign and setup some sub objects.
+        /// </summary>
+        [MessageHandler((ushort)PacketType.SailServerPacket.CallStaticRPC)]
+        private static void HandleStaticRPC(Message message)
+        {
+            string methodName = message.GetString();
+
+            Reflector.CallStaticRPC(methodName, ref message);
         }
 
         /// <summary>

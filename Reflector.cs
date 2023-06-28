@@ -31,9 +31,19 @@ namespace Sail
         public static Dictionary<Type, MethodInfo[]> RPCMethods = new Dictionary<Type, MethodInfo[]>();
 
         /// <summary>
+        /// Fetch RPC method from its name. 
+        /// </summary>
+        public static Dictionary<string, MethodInfo> RPCMethodsFromName = new Dictionary<string, MethodInfo>();
+
+        /// <summary>
         /// Fetch id of a specific method given its name in a specified type to be used in RPCMethods index.
         /// </summary>
         public static Dictionary<Type, Dictionary<string, int>> RPCFindMethodIndex = new Dictionary<Type, Dictionary<string, int>>();
+
+        /// <summary>
+        /// Raw list of RPCs.
+        /// </summary>
+        public static List<MethodInfo> RPCsList = new List<MethodInfo>();
 
         //Private variables
         private static Issuer _issuer;
@@ -87,6 +97,8 @@ namespace Sail
 
                     //Unique id for each method
                     MethodNameToID.Add(method.Name, index++);
+                    RPCsList.Add(method);
+                    RPCMethodsFromName.Add(method.Name, method);
                     Logger.Log($"Found RPC Method on type {classType} of name {method.Name}");
                 }
 
@@ -207,11 +219,8 @@ namespace Sail
             }
         }
 
-        public static void DeSerializeAndCallRPC(int networkID, string methodName, ref Message message)
+        private static object[] DeserializeRPC(MethodInfo methodInfo, ref Message message)
         {
-            Type targetType = Manager.Instance.NetworkedObjects[networkID].GetType();
-            Debug.Log("RPC RECEIVED: TARGET TYPE " + targetType);
-            MethodInfo methodInfo = GetMethod(targetType, methodName);
             ParameterInfo[] parameterInfos = methodInfo.GetParameters();
             object[] parameters = new object[parameterInfos.Length];
 
@@ -258,10 +267,29 @@ namespace Sail
                 else if (info.ParameterType == typeof(byte[]))
                     parameters[i] = message.GetBytes();
                 else
-                    throw new System.Exception("DeSerialization for RPC is impossible - Incompatible parameter type: " + info.ParameterType.GetType());
+                    throw new System.Exception("Deserialization for RPC is impossible - Incompatible parameter type: " + info.ParameterType.GetType());
             }
 
+            return parameters;
+        }
+
+        public static void CallRPC(int networkID, string methodName, ref Message message)
+        {
+            Type targetType = Manager.Instance.NetworkedObjects[networkID].GetType();
+            Debug.Log("RPC RECEIVED: TARGET TYPE " + targetType);
+            MethodInfo methodInfo = GetMethod(targetType, methodName);
+
+            object[] parameters = DeserializeRPC(methodInfo, ref message);
             methodInfo.Invoke(Manager.Instance.NetworkedObjects[networkID], parameters);
+        }
+
+        public static void CallStaticRPC(string methodName, ref Message message)
+        {
+            Debug.Log("STATIC RPC RECEIVED");
+            MethodInfo methodInfo = RPCMethodsFromName[methodName];
+
+            object[] parameters = DeserializeRPC(methodInfo, ref message);
+            methodInfo.Invoke(null, parameters);
         }
     }
 }

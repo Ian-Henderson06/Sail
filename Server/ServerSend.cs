@@ -208,6 +208,38 @@ namespace Sail.Core.Server
         }
 
         /// <summary>
+        /// Call a static RPC method on a single client.
+        /// </summary>
+        /// <param name="methodName">Name of the method to be called on clients machine.</param>
+        /// <param name="clientID">Client's ID to send this RPC method.</param>
+        /// <param name="parameters">List of parameters to forward to the RPC method.</param>
+        public static void CallStaticRPC(string methodName, ushort clientID, params object[] parameters)
+        {
+            Message message = Message.Create(MessageSendMode.Reliable, (ushort)PacketType.SailServerPacket.CallStaticRPC);
+            message.Add(methodName);
+            Reflector.SerializeRPC(ref message, in parameters);
+            Manager.Instance.ServerCore.Send(message, (ushort)clientID);
+        }
+
+        /// <summary>
+        /// Call a static RPC method on all clients.
+        /// </summary>
+        /// <param name="methodName">Name of the method to be called on clients machine.</param>
+        /// <param name="parameters">List of parameters to forward to the RPC method.</param>
+        public static void CallStaticRPCGlobal(string methodName, params object[] parameters)
+        {
+            Message message = Message.Create(MessageSendMode.Reliable, (ushort)PacketType.SailServerPacket.CallStaticRPC);
+            message.Add(methodName);
+
+            Logger.Log("RPC METHOD: " + methodName);
+
+            Reflector.SerializeRPC(ref message, in parameters);
+
+            Manager.Instance.Measure.AddToMeasure(message.WrittenLength, (ushort)PacketType.SailServerPacket.CallStaticRPC);
+            Manager.Instance.ServerCore.SendToAll(message);
+        }
+
+        /// <summary>
         /// Update flags on all remote clients.
         /// </summary>
         /// <param name="nwo"></param>

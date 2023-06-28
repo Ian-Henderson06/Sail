@@ -60,13 +60,45 @@ namespace Sail
         public static Task CaptureRPCMethods()
         {
             Logger.Log("Attempting capture of RPC methods...");
-            List<Type> types = GetAllClassesThatImplement<NetworkObject>();
+            List<Type> allTypes = GetAllClassesThatImplement<RPCAttribute>();
+            List<Type> instanceTypes = GetAllClassesThatImplement<NetworkObject>(); //instanced versions of RPCs (RPCS that are placed onto a network object)
 
 
-            foreach (Type classType in types)
+            foreach (Type classType in allTypes)
+            {
+                MethodInfo[] methods = classType
+                   .GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+                   .Where(method => Attribute.IsDefined(method, typeof(RPCAttribute)))
+                   .ToArray();
+
+                //Loop through each RPC method in class.
+                foreach (MethodInfo method in methods)
+                {
+                    ParameterInfo[] parameters = method.GetParameters();
+
+                    //Check Parameters
+                    foreach (ParameterInfo par in parameters)
+                    {
+                        //Not an allowed type
+                        if (!AllowedTypes.Contains(par.ParameterType))
+                        {
+                            Logger.LogError("Incompatible parameter used: " + par.Name + " typeof: " + par.ParameterType);
+                            return Task.CompletedTask;
+                        }
+                    }
+
+                    RPCMethodsFromName.TryAdd(method.Name, method);
+                    RPCsList.Add(method);
+                    Logger.Log($"Found Static RPC Method on type {classType} of name {method.Name}");
+                }
+            }
+
+            foreach (Type classType in instanceTypes)
             {
                 //Logger.Log("TYPE FOUND " + classType);
-                //Fetch all methods tagged as RPC in this class.
+                //Fetch all methods tagged as RPC in this class.'
+
+
                 MethodInfo[] methods = classType
                     .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                     .Where(method => Attribute.IsDefined(method, typeof(RPCAttribute)))
@@ -94,11 +126,10 @@ namespace Sail
                             return Task.CompletedTask;
                         }
                     }
-
                     //Unique id for each method
-                    MethodNameToID.Add(method.Name, index++);
+                    MethodNameToID.TryAdd(method.Name, index++);
                     RPCsList.Add(method);
-                    RPCMethodsFromName.Add(method.Name, method);
+                    RPCMethodsFromName.TryAdd(method.Name, method);
                     Logger.Log($"Found RPC Method on type {classType} of name {method.Name}");
                 }
 

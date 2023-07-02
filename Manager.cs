@@ -31,9 +31,15 @@ namespace Sail
         public TimeManager TimeManager { get { return _timeManager; } }
         public Measure Measure { get { return _measure; } }
 
+        //Delegates
+        public delegate void PlayerEvent(SailPlayer player);
+
         //Events
         public event Action OnTick;
         public event Action OnPostTick;
+
+        public event PlayerEvent OnPlayerSpawned;
+        public event PlayerEvent OnPlayerRemoved;
 
         //Serialized private fields
         [SerializeField] private float _ticksPerSecond = 64;
@@ -163,6 +169,7 @@ namespace Sail
                 return;
             }
 
+            OnPlayerSpawned?.Invoke(player);
             Players.Add(player.PlayerID, player);
         }
 
@@ -180,6 +187,7 @@ namespace Sail
                 return;
             }
 
+            OnPlayerRemoved?.Invoke(player);
             Players.Remove(player.PlayerID);
         }
 

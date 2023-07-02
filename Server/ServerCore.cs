@@ -75,6 +75,13 @@ namespace Sail.Core.Server
             }
 
             Logger.Log("Starting server.");
+
+            if (Application.runInBackground == false)
+            {
+                Logger.LogWarning("Please make sure to run the server with RunInBackground checked. Otherwise this may cause no connection errors on client. Sail will automatically enable this setting incase.");
+                Application.runInBackground = true;
+            }
+
             _server.Start(runningPort, maxPlayers);
 
             _hasStarted = true;

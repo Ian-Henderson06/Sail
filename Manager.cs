@@ -27,9 +27,21 @@ namespace Sail
         public ServerCore ServerCore { get { return _serverCore; } }
         public ClientCore ClientCore { get { return _clientCore; } }
         public Dictionary<ushort, SailPlayer> Players { get; private set; }
-        public Dictionary<int, NetworkObject> NetworkedObjects { get; private set; }
+        public Dictionary<int, NetworkObject> NetworkedObjects {
+            get
+            {
+                return _networkedObjects;
+            }
+            private
+                set
+            {
+                _networkedObjects = value;
+            }
+            }
         public TimeManager TimeManager { get { return _timeManager; } }
         public Measure Measure { get { return _measure; } }
+
+        private Dictionary<int, NetworkObject> _networkedObjects = new Dictionary<int, NetworkObject>();
 
         //Delegates
         public delegate void PlayerEvent(SailPlayer player);
@@ -83,7 +95,7 @@ namespace Sail
             Instance = this;
 
             Players = new Dictionary<ushort, SailPlayer>();
-            NetworkedObjects = new Dictionary<int, NetworkObject>();
+            _networkedObjects = new Dictionary<int, NetworkObject>();
 
             _tickRate = 1 / _ticksPerSecond;
 
@@ -168,7 +180,7 @@ namespace Sail
                 Logger.LogError("Player already exists and cannot be added to the NWM Players dictionary.");
                 return;
             }
-
+            Debug.Log("ON PLAYER SPAWNED");
             OnPlayerSpawned?.Invoke(player);
             Players.Add(player.PlayerID, player);
         }
@@ -197,13 +209,13 @@ namespace Sail
         /// <param name="nwo"></param>
         internal void AddNetworkObject(NetworkObject nwo)
         {
-            if (NetworkedObjects.TryGetValue(nwo.NetworkID, out _))
+            if (_networkedObjects.TryGetValue(nwo.NetworkID, out _))
             {
                 Logger.LogError("Networked Object already exists and cannot be added to the register.");
                 return;
             }
 
-            NetworkedObjects.Add(nwo.NetworkID, nwo);
+            _networkedObjects.Add(nwo.NetworkID, nwo);
         }
 
         /// <summary>
@@ -213,13 +225,13 @@ namespace Sail
         /// <param name="player"></param>
         internal void RemoveNetworkObject(NetworkObject nwo)
         {
-            if (!NetworkedObjects.TryGetValue(nwo.NetworkID, out _))
+            if (!_networkedObjects.TryGetValue(nwo.NetworkID, out _))
             {
                 Logger.LogError("Network Object cannot be removed as it doesn't exist in the register.");
                 return;
             }
 
-            NetworkedObjects.Remove(nwo.NetworkID);
+            _networkedObjects.Remove(nwo.NetworkID);
         }
     }
 }

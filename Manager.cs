@@ -180,9 +180,8 @@ namespace Sail
                 Logger.LogError("Player already exists and cannot be added to the NWM Players dictionary.");
                 return;
             }
-            Debug.Log("ON PLAYER SPAWNED");
-            OnPlayerSpawned?.Invoke(player);
             Players.Add(player.PlayerID, player);
+            OnPlayerSpawned?.Invoke(player);
         }
 
         /// <summary>
@@ -199,8 +198,8 @@ namespace Sail
                 return;
             }
 
-            OnPlayerRemoved?.Invoke(player);
             Players.Remove(player.PlayerID);
+            OnPlayerRemoved?.Invoke(player);
         }
 
         /// <summary>

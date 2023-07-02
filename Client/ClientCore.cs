@@ -118,8 +118,9 @@ namespace Sail.Core.Client
 
             playerNetwork.InitialisePlayer(username, playerID, networkID);
             networkItem.InitialiseObject(networkID, -1); //player has item id of -1
-            Manager.Instance.AddPlayer(playerNetwork);
             Manager.Instance.AddNetworkObject(networkItem);
+            Manager.Instance.AddPlayer(playerNetwork);
+            
 
             //If local player
             if (playerID == _client.Id)

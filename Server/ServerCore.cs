@@ -114,8 +114,9 @@ namespace Sail.Core.Server
             int id = _idIssuer.RequestIssue();
             playerNetwork.InitialisePlayer(username, playerID, id);
             networkItem.InitialiseObject(id, -1); //player has item id of -1
-            Manager.Instance.AddPlayer(playerNetwork);
             Manager.Instance.AddNetworkObject(networkItem);
+            Manager.Instance.AddPlayer(playerNetwork);
+          
 
             //Give the player some persistent data
             _persistentData.Add(networkItem.NetworkID, new NetworkObjectPersistentData(networkItem.ItemID, 128));

@@ -52,7 +52,6 @@ namespace Sail.Data
             _itemID = itemID;
             _authorityID = int.MaxValue;
             _flags = 0b_0000_0000;
-            _shouldSync = true;
 
             OnNetworkIDChanged?.Invoke();
         }

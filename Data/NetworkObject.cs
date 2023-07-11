@@ -18,7 +18,7 @@ namespace Sail.Data
         public byte Flags { get { return _flags; } }
         public SubNetworkObject[] SubObjects { get { return _subObjects.ToArray(); } }
         public bool ShouldSync { get { return _shouldSync; } }
-
+        public bool IgnoreIncomingSync { get { return _ignoreIncomingSync; } }
 
         //Public events
         /// <summary>
@@ -39,6 +39,8 @@ namespace Sail.Data
         //Private serializable fields
         [SerializeField] private List<SubNetworkObject> _subObjects = new List<SubNetworkObject>();
         [SerializeField] private bool _shouldSync; //Client/Server will check this boolean before sending over position/rotation updates even if they have authority
+
+        [SerializeField] private bool _ignoreIncomingSync = false; //Make local object ignore any updates coming in from the server/client.
 
         //Private fields
         private int _networkID;

@@ -110,7 +110,7 @@ namespace Sail.Core.Client
                 return;
 
             //If we have authority over this object or it is owned by the client then discard the incoming packet
-            if (Manager.Instance.NetworkedObjects[networkID].AuthorityID == Manager.Instance.ClientCore.Client.Id || Manager.Instance.ClientCore.ClientObjects.ContainsKey(networkID))
+            if (Manager.Instance.NetworkedObjects[networkID].AuthorityID == Manager.Instance.ClientCore.Client.Id || Manager.Instance.ClientCore.ClientObjects.ContainsKey(networkID) || Manager.Instance.NetworkedObjects[networkID].IgnoreIncomingSync)
             {
                 return;
             }

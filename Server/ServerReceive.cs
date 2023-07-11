@@ -101,6 +101,9 @@ namespace Sail.Core.Server
             {
                 if (Authority.GetAuthority(networkID) == ClientAuthorityType.Full)
                 {
+                    if (Manager.Instance.NetworkedObjects[networkID].IgnoreIncomingSync) //Ignore update
+                        return;
+
                     Vector3 position = message.GetVector3();
                     Quaternion rotation = message.GetQuaternion();
                     GameObject obj = Manager.Instance.NetworkedObjects[networkID].gameObject;

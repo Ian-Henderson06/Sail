@@ -24,6 +24,8 @@ namespace Sail.Core.Client
         public SailPlayer LocalPlayer { get { return _localPlayer; } }
         public Dictionary<int, NetworkObject> ClientObjects = new Dictionary<int, NetworkObject>();
 
+        public ClientFunctions ClientFunctions { get { return _clientFunctions; } }
+
         //Private serialized fields
         [SerializeField] private GameObject _remotePlayerPrefab;
         [SerializeField] private GameObject _localPlayerPrefab;
@@ -32,7 +34,7 @@ namespace Sail.Core.Client
         private Riptide.Client _client;
         private bool _hasStarted;
         private SailPlayer _localPlayer;
-
+        private ClientFunctions _clientFunctions;
 
         //Properties
         public Riptide.Client Client { get { return _client; } }
@@ -59,7 +61,7 @@ namespace Sail.Core.Client
             _client.ConnectionFailed += FailedToConnect;
 
             Manager.Instance.OnTick += OnTick;
-
+            _clientFunctions = new ClientFunctions();
         }
 
 
@@ -116,7 +118,7 @@ namespace Sail.Core.Client
                 return null;
             }
 
-            
+
             //If local player
             if (playerID == _client.Id)
             {
@@ -127,7 +129,7 @@ namespace Sail.Core.Client
             networkItem.InitialiseObject(networkID, -1); //player has item id of -1
             Manager.Instance.AddNetworkObject(networkItem);
             Manager.Instance.AddPlayer(playerNetwork);
-            
+
             return playerNetwork;
         }
 
@@ -224,6 +226,15 @@ namespace Sail.Core.Client
             Manager.Instance.NetworkedObjects[parentNetworkID].SubObjects[listIndex].InitialiseObject(childNetworkID, -1);
             Manager.Instance.NetworkedObjects[parentNetworkID].SubObjects[listIndex].InitializeSubObject(parentNetworkID, listIndex);
             Manager.Instance.AddNetworkObject(Manager.Instance.NetworkedObjects[parentNetworkID].SubObjects[listIndex]);
+        }
+
+        /// <summary>
+        /// Changes the internal client functions used. Allows users to specify custom behaviour for objects.
+        /// </summary>
+        /// <param name="functions"></param>
+        public void AssignClientFunctions(ClientFunctions functions)
+        {
+            _clientFunctions = functions;
         }
 
         /// <summary>

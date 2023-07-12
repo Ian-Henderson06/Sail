@@ -85,5 +85,14 @@ namespace Sail.Data
         {
             _shouldSync = shouldSync;
         }
+
+        /// <summary>
+        /// Should this object ignore incoming updates?
+        /// </summary>
+        /// <param name="shouldSync"></param>
+        public void SetShouldIgnoreSync(bool shouldIgnoreSync)
+        {
+            _ignoreIncomingSync = shouldIgnoreSync;
+        }
     }
 }

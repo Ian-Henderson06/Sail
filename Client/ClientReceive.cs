@@ -64,8 +64,7 @@ namespace Sail.Core.Client
             Vector3 newPosition = message.GetVector3();
             Quaternion newRotation = message.GetQuaternion();
 
-            Manager.Instance.Players[playerID].transform.position = newPosition;
-            Manager.Instance.Players[playerID].transform.rotation = newRotation;
+            Manager.Instance.ClientCore.ClientFunctions.OnUpdatePlayer(playerID, newPosition, newRotation);
         }
 
 
@@ -118,8 +117,7 @@ namespace Sail.Core.Client
             Vector3 newPosition = message.GetVector3();
             Quaternion newRotation = message.GetQuaternion();
 
-            Manager.Instance.NetworkedObjects[networkID].transform.position = newPosition;
-            Manager.Instance.NetworkedObjects[networkID].transform.rotation = newRotation;
+            Manager.Instance.ClientCore.ClientFunctions.OnUpdateNetworkObject(networkID, newPosition, newRotation);
         }
 
         /// <summary>

@@ -27,7 +27,8 @@ namespace Sail
         public ServerCore ServerCore { get { return _serverCore; } }
         public ClientCore ClientCore { get { return _clientCore; } }
         public Dictionary<ushort, SailPlayer> Players { get; private set; }
-        public Dictionary<int, NetworkObject> NetworkedObjects {
+        public Dictionary<int, NetworkObject> NetworkedObjects
+        {
             get
             {
                 return _networkedObjects;
@@ -37,7 +38,7 @@ namespace Sail
             {
                 _networkedObjects = value;
             }
-            }
+        }
         public TimeManager TimeManager { get { return _timeManager; } }
         public Measure Measure { get { return _measure; } }
 

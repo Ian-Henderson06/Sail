@@ -41,6 +41,10 @@ namespace Sail.Core.Server
 
         public Peer GetPeer() => _server;
 
+        //Events
+        public event NetworkObject.NetworkObjectEvent OnNetworkObjectSpawned;
+        public event NetworkObject.NetworkObjectEvent OnNetworkObjectDestroyed;
+
         private void OnDestroy()
         {
             Manager.Instance.OnTick -= OnTick;
@@ -116,7 +120,7 @@ namespace Sail.Core.Server
             networkItem.InitialiseObject(id, -1); //player has item id of -1
             Manager.Instance.AddNetworkObject(networkItem);
             Manager.Instance.AddPlayer(playerNetwork);
-          
+
 
             //Give the player some persistent data
             _persistentData.Add(networkItem.NetworkID, new NetworkObjectPersistentData(networkItem.ItemID, 128));
@@ -188,6 +192,9 @@ namespace Sail.Core.Server
             if (_clientsConnected > 0)
                 ServerSend.SpawnNetworkObject(networkItem); //Spawn on currently connected clients.
 
+
+            OnNetworkObjectSpawned?.Invoke(networkItem);
+
             return networkItem;
         }
 
@@ -227,6 +234,8 @@ namespace Sail.Core.Server
                 if (_clientsConnected > 0)
                     ServerSend.DestroyNetworkObject(networkObject); //Get current clients to remove object
 
+
+                OnNetworkObjectDestroyed?.Invoke(networkObject);
                 Manager.Instance.RemoveNetworkObject(networkObject);
                 Destroy(networkObject.gameObject);
             }
@@ -234,6 +243,7 @@ namespace Sail.Core.Server
             {
                 Logger.Log($"Could not destroy network object {networkID}.");
             }
+
         }
 
         public void UpdateNetworkObjectAuthority(int networkID, ushort clientID, ClientAuthorityType auth)

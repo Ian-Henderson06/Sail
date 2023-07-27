@@ -20,6 +20,8 @@ namespace Sail.Data
         public bool ShouldSync { get { return _shouldSync; } }
         public bool IgnoreIncomingSync { get { return _ignoreIncomingSync; } }
 
+        public delegate void NetworkObjectEvent(NetworkObject nwo);
+
         //Public events
         /// <summary>
         /// Called when this object is initialised and its NetworkID is set.

@@ -41,6 +41,10 @@ namespace Sail.Core.Client
 
         public Peer GetPeer() => _client;
 
+        //Events
+        public event NetworkObject.NetworkObjectEvent OnNetworkObjectSpawned;
+        public event NetworkObject.NetworkObjectEvent OnNetworkObjectDestroyed;
+
         private void OnDestroy()
         {
             Manager.Instance.OnTick -= OnTick;
@@ -180,6 +184,7 @@ namespace Sail.Core.Client
             networkItem.InitialiseObject(networkID, itemID);
             Manager.Instance.AddNetworkObject(networkItem);
 
+            OnNetworkObjectSpawned?.Invoke(networkItem);
             return networkItem;
         }
 
@@ -205,6 +210,8 @@ namespace Sail.Core.Client
                 }
 
                 if (ClientObjects.ContainsKey(networkObject.NetworkID)) ClientObjects.Remove(networkObject.NetworkID); //If client has control over entity then remove it from that list
+
+                OnNetworkObjectDestroyed?.Invoke(networkObject);
                 Manager.Instance.RemoveNetworkObject(networkObject);
                 Destroy(networkObject.gameObject);
             }
